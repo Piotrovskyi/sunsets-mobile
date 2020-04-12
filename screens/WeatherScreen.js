@@ -19,7 +19,7 @@ import RNPickerSelect from 'react-native-picker-select';
 import { Ionicons } from '@expo/vector-icons';
 import { toJS } from 'mobx';
 
-const makePoint = (c) => ({ latitude: c[1], longitude: c[0] });
+const makePoint = (c) => ({ latitude: parseFloat(c[1]), longitude: parseFloat(c[0]) });
 
 const makeLine = (l) => l.map(makePoint);
 const makeCoordinates = (feature) => {
@@ -122,7 +122,7 @@ const PhotoSpotsScreen = () => {
                 key={overlay.feature.geometry.name}
                 coordinates={overlay.coordinates}
                 fillColor={overlay.feature.properties.color}
-                strokeColor={null}
+                strokeColor={undefined}
                 tappable
                 onPress={() => rootStore.selectWeatherPolygon(overlay.feature)}
               />
