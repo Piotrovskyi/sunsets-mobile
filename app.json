@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "sunsetMobile",
-    "slug": "sunsetMobile",
+    "name": "sunset",
+    "slug": "sunset",
     "platforms": [
       "ios",
       "android",
