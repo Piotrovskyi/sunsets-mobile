@@ -96,7 +96,9 @@ const PhotoSpotsScreen = () => {
   const rootStore = useStore();
 
   return useObserver(() => {
-    const overlays = React.useMemo(() => makeOverlays(rootStore.photoSpotsFeatures), [rootStore.photoSpotsFeatures]);
+    const overlays = React.useMemo(() => makeOverlays(rootStore.photoSpotsFeatures), [
+      rootStore.photoSpotsFeatures,
+    ]);
     return (
       <View style={styles.container}>
         <ButtonGroup
@@ -117,20 +119,22 @@ const PhotoSpotsScreen = () => {
               latitudeDelta: 2,
               longitudeDelta: 2,
             }}>
-            {overlays.map((overlay) => (
+            {overlays.map((overlay, index) => (
               <Polygon
                 key={overlay.feature.geometry.name}
                 coordinates={overlay.coordinates}
                 fillColor={overlay.feature.properties.color}
-                strokeColor={null}
+                strokeColor={rootStore.photoSpotsPolygon?.index ===index ? 'black': null}
                 tappable
-                onPress={() => rootStore.selectPhotoSpotPolygon(overlay.feature)}
+                onPress={() => rootStore.selectPhotoSpotPolygon({...overlay.feature, index})}
               />
             ))}
           </MapView>
           {rootStore.photoSpotsPolygon && (
             <View style={styles.mapText}>
-              <Text>{rootStore.currentPolygon.properties.text}</Text>
+              {rootStore.photoSpotsPolygon.properties.text.split('. ').map((el) => (
+                <Text style={{ color: 'white' }}>{el}</Text>
+              ))}
             </View>
           )}
         </View>
@@ -167,7 +171,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     padding: 20,
     backgroundColor: 'rgba(0,0,0,0.5)',
-    width: '100%'
+    width: '100%',
   },
   mapStyle: {
     flex: 1,
