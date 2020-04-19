@@ -47,11 +47,13 @@ export default function BottomTabNavigator({ navigation, route }) {
 
 function getHeaderTitle(route) {
   const routeName = route.state?.routes[route.state.index]?.name ?? INITIAL_ROUTE_NAME;
-
-  switch (routeName) {
-    case 'Weather':
-      return 'Weather';
-    case 'Photo Spots':
-      return 'Photo Spots';
-  }
+  return routeName
+  // switch (routeName) {
+  //   case 'Weather':
+  //     return 'Weather';
+  //   case 'Photo Spots':
+  //     return 'Photo Spots';
+  //   case 'Credits':
+  //     return 'Credits';
+  // }
 }

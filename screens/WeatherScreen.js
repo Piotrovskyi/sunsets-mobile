@@ -13,7 +13,7 @@ import MapView, { Polygon } from 'react-native-maps';
 
 import { MonoText } from '../components/StyledText';
 import { useObserver } from 'mobx-react-lite';
-import { useStore } from '../App';
+import { useStore } from '../storeContext';
 import { ButtonGroup } from 'react-native-elements';
 import RNPickerSelect from 'react-native-picker-select';
 import { Ionicons } from '@expo/vector-icons';
@@ -52,7 +52,7 @@ const PhotoSpotsScreen = () => {
                 key={index}
                 coordinates={overlay.coordinates}
                 fillColor={overlay.feature.properties.color}
-                strokeColor={index === rootStore.currentPolygon.index ? 'black' : null}
+                strokeColor={index === rootStore.currentPolygon?.index ? 'black' : null}
                 tappable
                 onPress={() => rootStore.selectWeatherPolygon({...overlay.feature,index})}
               />

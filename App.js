@@ -10,10 +10,7 @@ import BottomTabNavigator from './navigation/BottomTabNavigator';
 import useLinking from './navigation/useLinking';
 
 import rootStore from './store';
-
-export const StoreContext = React.createContext({});
-export const StoreProvider = StoreContext.Provider;
-export const useStore = () => React.useContext(StoreContext);
+import { StoreProvider } from './storeContext';
 
 const Stack = createStackNavigator();
 console.disableYellowBox = true;
@@ -62,7 +59,7 @@ export default function App(props) {
             </Stack.Navigator>
           </NavigationContainer>
         </View>
-        </StoreProvider>
+      </StoreProvider>
     );
   }
 }

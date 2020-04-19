@@ -13,12 +13,12 @@ import MapView, { Polygon } from 'react-native-maps';
 
 import { MonoText } from '../components/StyledText';
 import { useObserver } from 'mobx-react-lite';
-import { useStore } from '../App';
 import { ButtonGroup } from 'react-native-elements';
 import RNPickerSelect from 'react-native-picker-select';
 import { Ionicons } from '@expo/vector-icons';
 import { toJS } from 'mobx';
 import { makeOverlays } from '../utils/makeOverlays';
+import { useStore } from '../storeContext';
 
 
 const PhotoSpotsScreen = () => {
@@ -28,7 +28,6 @@ const PhotoSpotsScreen = () => {
     const overlays = React.useMemo(() => makeOverlays(rootStore.photoSpotsFeatures), [
       rootStore.photoSpotsFeatures,
     ]);
-    console.log('render')
     return (
       <View style={styles.container}>
         <ButtonGroup
