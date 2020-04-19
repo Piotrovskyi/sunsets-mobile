@@ -18,85 +18,15 @@ import { ButtonGroup } from 'react-native-elements';
 import RNPickerSelect from 'react-native-picker-select';
 import { Ionicons } from '@expo/vector-icons';
 import { toJS } from 'mobx';
-
-const makePoint = (c) => ({ latitude: parseFloat(c[1]), longitude: parseFloat(c[0]) });
-
-const makeLine = (l) => l.map(makePoint);
-const makeCoordinates = (feature) => {
-  const g = feature.geometry;
-  if (g.type === 'Point') {
-    return [makePoint(g.coordinates)];
-  } else if (g.type === 'MultiPoint') {
-    return g.coordinates.map(makePoint);
-  } else if (g.type === 'LineString') {
-    return [makeLine(g.coordinates)];
-  } else if (g.type === 'MultiLineString') {
-    return g.coordinates.map(makeLine);
-  } else if (g.type === 'Polygon') {
-    return g.coordinates.map(makeLine);
-  } else if (g.type === 'MultiPolygon') {
-    return g.coordinates.map((p) => p.map(makeLine));
-  } else {
-    return [];
-  }
-};
-const flatten = (prev, curr) => prev.concat(curr);
-const makeOverlay = (coordinates, feature) => {
-  let overlay = {
-    feature,
-  };
-  if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
-    overlay.coordinates = coordinates[0];
-    if (coordinates.length > 1) {
-      overlay.holes = coordinates.slice(1);
-    }
-  } else {
-    overlay.coordinates = coordinates;
-  }
-  return overlay;
-};
-export const makeOverlays = (features) => {
-  const points = features
-    .filter((f) => f.geometry && (f.geometry.type === 'Point' || f.geometry.type === 'MultiPoint'))
-    .map((feature) =>
-      makeCoordinates(feature).map((coordinates) => makeOverlay(coordinates, feature)),
-    )
-    .reduce(flatten, [])
-    .map((overlay) => ({ ...overlay, type: 'point' }));
-
-  const lines = features
-    .filter(
-      (f) =>
-        f.geometry && (f.geometry.type === 'LineString' || f.geometry.type === 'MultiLineString'),
-    )
-    .map((feature) =>
-      makeCoordinates(feature).map((coordinates) => makeOverlay(coordinates, feature)),
-    )
-    .reduce(flatten, [])
-    .map((overlay) => ({ ...overlay, type: 'polyline' }));
-
-  const multipolygons = features
-    .filter((f) => f.geometry && f.geometry.type === 'MultiPolygon')
-    .map((feature) =>
-      makeCoordinates(feature).map((coordinates) => makeOverlay(coordinates, feature)),
-    )
-    .reduce(flatten, []);
-
-  const polygons = features
-    .filter((f) => f.geometry && f.geometry.type === 'Polygon')
-    .map((feature) => makeOverlay(makeCoordinates(feature), feature))
-    .reduce(flatten, [])
-    .concat(multipolygons)
-    .map((overlay) => ({ ...overlay, type: 'polygon' }));
-
-  return points.concat(lines).concat(polygons);
-};
+import { makeOverlays } from '../utils/makeOverlays';
 
 const PhotoSpotsScreen = () => {
   const rootStore = useStore();
 
   return useObserver(() => {
-    const overlays = React.useMemo(() => makeOverlays(rootStore.weatherFeatures), [rootStore.weatherFeatures]);
+    const overlays = React.useMemo(() => makeOverlays(rootStore.weatherFeatures), [
+      rootStore.weatherFeatures,
+    ]);
     return (
       <View style={styles.container}>
         <ButtonGroup
@@ -117,20 +47,20 @@ const PhotoSpotsScreen = () => {
               latitudeDelta: 2,
               longitudeDelta: 2,
             }}>
-            {overlays.map((overlay) => (
+            {overlays.map((overlay, index) => (
               <Polygon
-                key={overlay.feature.geometry.name}
+                key={index}
                 coordinates={overlay.coordinates}
                 fillColor={overlay.feature.properties.color}
-                strokeColor={undefined}
+                strokeColor={index === rootStore.currentPolygon.index ? 'black' : null}
                 tappable
-                onPress={() => rootStore.selectWeatherPolygon(overlay.feature)}
+                onPress={() => rootStore.selectWeatherPolygon({...overlay.feature,index})}
               />
             ))}
           </MapView>
           {rootStore.currentPolygon && (
             <View style={styles.mapText}>
-              <Text>{rootStore.currentPolygon.properties.text}</Text>
+              <Text style={{ color: 'white' }}>{rootStore.currentPolygon.properties.text}</Text>
             </View>
           )}
         </View>
@@ -167,7 +97,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     padding: 20,
     backgroundColor: 'rgba(0,0,0,0.5)',
-    width: '100%'
+    width: '100%',
   },
   mapStyle: {
     flex: 1,
